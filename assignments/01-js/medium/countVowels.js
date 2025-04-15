@@ -6,7 +6,17 @@
 */
 
 function countVowels(str) {
-    // Your code here
+    countOfVowels = 0
+    array_of_letters = str.toLowerCase().split("")
+    
+    array_of_letters.forEach((letter)=>{
+      if ("aeiou".includes(letter)){
+        countOfVowels += 1
+      }
+    })
+    return countOfVowels
 }
+
+console.log(countVowels("aeioug ibad"))
 
 module.exports = countVowels;

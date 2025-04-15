@@ -4,7 +4,15 @@
 */
 
 function isPalindrome(str) {
-  return true;
+  cleanString = str.toLowerCase().replace(/[^a-z0-9]/g,"").split("").reverse().join("")
+  console.log(cleanString)
+  if (str.toLowerCase().replace(/[^a-z0-9]/g,"") == cleanString) {
+    return true;
+  }else{
+    return false
+  }
 }
+
+console.log(isPalindrome("dada; dad"))
 
 module.exports = isPalindrome;

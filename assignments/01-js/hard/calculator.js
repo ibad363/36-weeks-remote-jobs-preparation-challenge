@@ -15,7 +15,87 @@
 
   Once you've implemented the logic, test your code by running
 */
+class Calculator {
+  constructor () {
+    this.result = 0
+  }
 
-class Calculator {}
+  add(num) {
+    this.result += num;
+  }
+
+  subtract(num) {
+    this.result -= num;
+  }
+
+  multiply(num) {
+    this.result *= num;
+  }
+
+  divide(num){
+    if (num === 0){
+      throw new Error("Cannot divide by zero")
+    }
+    this.result /= num
+  }
+  clear(){
+    this.result = 0
+  }
+  getResult(){
+    return this.result
+  }
+
+  hasInvalidCharacters(expression){
+    const pattern = /^[0-9+\-*/().\s]+$/
+    return !pattern.test(expression)
+  }
+
+  hasValidParantheses(expression){
+    let stack = []
+    for (let char of expression){
+      if (char === "(") stack.push(char)
+      else if (char === ")") {
+        if (stack.length === 0) return false
+        stack.pop()
+      }
+    }
+    return stack.length === 0
+  }
+
+  containsDivisionByZero(expression){
+    const cleaned = expression.replace(/\s+/g,"")
+    return cleaned.includes("/0")
+  }
+
+  calculate(expression){
+    if (typeof expression !== "string"){
+      throw new Error("Expression must be a string")
+    }
+
+    if (this.hasInvalidCharacters(expression)) {
+      throw new Error("Expression contains invalid characters")
+    }
+
+    if (!this.hasValidParantheses(expression)){
+      throw new Error("Invalid parentheses")
+    }
+
+    if (this.containsDivisionByZero(expression)){
+      throw new Error("Division by zero")
+    }
+
+    try {
+      const cleaned = expression.replace(/\s+/g,"")
+      const evaluated = Function(`"use strict"; return (${cleaned})`)()
+      this.result = evaluated;
+      return this.result
+    }catch(error){
+      throw new Error("Invalid expression");
+    }
+  }
+}
+
+calculator = new Calculator()
+console.log(calculator.calculate("(55+6)*(5)"))
 
 module.exports = Calculator;

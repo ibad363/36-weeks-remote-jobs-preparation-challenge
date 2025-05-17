@@ -39,11 +39,82 @@
 
   Testing the server - run `npm run test-todoServer` command in terminal
  */
-  const express = require('express');
-  const bodyParser = require('body-parser');
-  
-  const app = express();
-  
-  app.use(bodyParser.json());
-  
-  module.exports = app;
+
+const express = require('express');
+const bodyParser = require('body-parser');
+const fs = require("fs")
+const PORT = 3000
+const app = express();
+const {v4: uuidv4} = require("uuid")
+const DATA_FILE = "todos.json"
+
+app.use(bodyParser.json());
+
+// Load existing todos from file, or start fresh
+let todos = []
+try{
+  const data = fs.readFileSync(DATA_FILE,"utf-8")
+  todos = JSON.parse(data)
+}catch{
+  todos = []
+}
+
+// Save Todos to file
+function saveTodos(){
+  fs.writeFileSync(DATA_FILE,JSON.stringify(todos,null,2))
+}
+
+
+// GET /todos - retrieve all
+app.get("/todos",(req,res)=>{
+  res.status(200).json(todos)
+})
+
+// GET /todos/:id - retrieve specific
+app.get("/todos/:id",((req,res)=>{
+  const todo = todos.find(t => t.id === req.params.id)
+  if (!todo) return res.status(404).send();
+  res.status(200).json(todo)
+}))
+
+// POST /todos - create new
+app.post("/todos",(req,res)=>{
+  const {title, description, completed = false} = req.body
+  if (!title || !description) {
+    return res.status(400).json({ error: "Title and description are required" });
+  }
+  const newTodo = {
+    id: uuidv4(),
+    title,
+    description
+  }
+  todos.push(newTodo)
+  saveTodos()
+  res.status(201).json({id: newTodo.id})
+})
+
+app.put("/todos/:id",(req,res)=>{
+  const index = todos.findIndex(t=> t.id === req.params.id)
+
+  if (index === -1) return res.status(404).send("ID is incorrect!")
+
+  todos[index] = {...todos[index], ...req.body}
+  saveTodos()
+  res.status(200).send("Todo Updated!")
+})
+
+app.delete("/todos/:id",(req,res)=>{
+    const index = todos.findIndex(t=> t.id === req.params.id)
+    if (index === -1) return res.status(404).send("ID is incorrect")
+
+    todos.splice(index,1)
+    saveTodos()
+    res.status(200).send("Todo Deleted")
+})
+
+// for all other routes, return 404
+app.use((req,res)=>{
+  res.status(404).send()
+})
+
+module.exports = app;

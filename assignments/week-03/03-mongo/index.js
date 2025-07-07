@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const adminRouter = require("./routes/admin")
 const userRouter = require("./routes/user");
+require("./db/index")
 
 // Middleware for parsing request bodies
 app.use(bodyParser.json());
